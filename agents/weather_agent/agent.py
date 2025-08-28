@@ -3,8 +3,8 @@ import os
 from google.adk.agents import Agent
 
 # uv run adk web agents 로 실행했을 때, shared를 찾지 못하는 문제 해결위해 추가. (uv run main.py 실행했을 때는 path지정 안해도 shared 잘 찾음)
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.constants import MODEL_GEMINI_2_0_FLASH
+# sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+# from shared.constants import MODEL_GEMINI_2_0_FLASH
 
 # adk web agents 실행시 LLM 호출을 위해 .env 파일에 GOOGLE_API_KEY 추가함.
 
@@ -29,7 +29,7 @@ def get_weather(city: str) -> dict:
     mock_weather_db = {
         "newyork": {
             "status": "success",
-            "report": "The weather in New York is sunny with a temperature of 27°C.",
+            "report": "The weather in New York is rainy with a temperature of 18°C.",
         },
         "london": {
             "status": "success",
@@ -55,7 +55,8 @@ print(get_weather("New York"))
 print(get_weather("Paris"))
 # @title Define the Weather Agent
 # Use one of the model constants defined earlier
-AGENT_MODEL = MODEL_GEMINI_2_0_FLASH  # Starting with Gemini
+AGENT_MODEL = os.getenv("AGENT_MODEL")
+print("AGENT_MODEL=", AGENT_MODEL)
 
 weather_agent = Agent(
     name="weather_agent_v1",
