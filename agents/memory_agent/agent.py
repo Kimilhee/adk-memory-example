@@ -121,7 +121,7 @@ memory_agent = Agent(
     "Use the load_memory or preload_memory tool to search for relevant information from past conversations."
     "**'load_memory 또는 preload_memory로 불러온 기억이 영어일지라도 한국어로 재서술하여 사용해!'**"
     "모든 답변은 한글로 해줘.",
-    tools=[PreloadMemoryTool(), load_memory],
+    tools=[PreloadMemoryTool()],
     # tools=[PreloadMemoryTool()],
     before_model_callback=my_before_model_logic,
     # 메모리 저장 옵션:
