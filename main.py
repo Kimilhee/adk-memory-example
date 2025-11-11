@@ -64,45 +64,25 @@ def as_json(resp):
         raise ValueError("Response is not a valid JSON object")
 
 
-def get_or_create_engine(display_name: str, description: str = ""):
-    request_dict = {"displayName": display_name, "description": description}
+def get_engine_id(display_name: str):
     # 1) 목록 조회로 같은 displayName이 있는지 확인
-    lst = as_json(
-        api.request(http_method="GET", path="reasoningEngines", request_dict={})
-    )
-
-    # lst가 딕셔너리이고 reasoningEngines가 있는지 확인
-    if isinstance(lst, dict) and "reasoningEngines" in lst:
-        for item in lst.get("reasoningEngines", []):
-            if item.get("displayName") == display_name:
-                name = item["name"]
-                rid = name.split("/")[-1]
-                return name, rid
-    else:
-        print(f"Warning: No reasoningEngines found in response: {lst}")
-
-    # 2) 없으면 생성
-    resp = as_json(
+    agent_list = as_json(
         api.request(
-            http_method="POST",
+            http_method="GET",
             path="reasoningEngines",
-            request_dict=request_dict,
+            request_dict={"displayName": display_name},
         )
     )
 
-    # POST 응답은 operation이므로 operation ID를 추출
-    if "name" in resp and "operations" in resp["name"]:
-        operation_name = resp["name"]
-        print(f"Created operation: {operation_name}")
-
-        # operation이 완료될 때까지 기다리기
-        # 여기서는 간단히 operation ID만 반환하거나,
-        # 실제로는 operation 완료를 기다려야 함
-        return operation_name, "operation_pending"
-
-    # 예상치 못한 응답
-    print(f"Unexpected POST response: {resp}")
-    return None, None
+    # lst가 딕셔너리이고 reasoningEngines가 있는지 확인
+    if isinstance(agent_list, dict) and "reasoningEngines" in agent_list:
+        for agent_engine in agent_list.get("reasoningEngines", []):
+            if agent_engine.get("displayName") == display_name:
+                name = agent_engine["name"]
+                engine_id = name.split("/")[-1]
+                return name, engine_id
+    else:
+        print(f"Warning: No reasoningEngines found in response: {agent_list}")
 
 
 async def call_agent_async(query: str, runner, user_id, session_id):
@@ -199,7 +179,7 @@ async def main_memory():
     db_url = "sqlite:///./my_agent_data.db"
     session_service = DatabaseSessionService(db_url=db_url)
 
-    APP_NAME, APP_ID = get_or_create_engine("My Memory App", "ADK + Memory Bank test")
+    APP_NAME, APP_ID = get_engine_id("ai-lamp-poc-agent-engine-dev")
     print(f"APP_NAME, APP_ID: {APP_NAME}, {APP_ID}")
     USER_ID = "user_1"
     # SESSION_ID = "session_001"  # Using a fixed ID for simplicity
@@ -317,16 +297,12 @@ async def main_memory():
 
 # --- OR ---
 
-def get_engine_id():
-    APP_NAME, APP_ID = get_or_create_engine("My Memory App", "ADK + Memory Bank test")
-    print(f"APP_NAME, APP_ID: {APP_NAME}, {APP_ID}")
 
 # Uncomment the following lines if running as a standard Python script (.py file):
 # import asyncio
 if __name__ == "__main__":
     try:
         # asyncio.run(main())
-        # asyncio.run(main_memory())
-        get_engine_id()
+        asyncio.run(main_memory())
     except Exception as e:
         print(f"An error occurred: {e}")

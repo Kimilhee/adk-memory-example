@@ -121,12 +121,12 @@ memory_agent = Agent(
     "Use the load_memory or preload_memory tool to search for relevant information from past conversations."
     "**'load_memory 또는 preload_memory로 불러온 기억이 영어일지라도 한국어로 재서술하여 사용해!'**"
     "모든 답변은 한글로 해줘.",
-    tools=[PreloadMemoryTool(), load_memory],
+    tools=[PreloadMemoryTool()],
     # tools=[PreloadMemoryTool()],
     before_model_callback=my_before_model_logic,
     # 메모리 저장 옵션:
     # 1. 콜백으로 자동 저장하려면 아래 주석 해제
-    after_model_callback=save_memory,
+    after_agent_callback=save_memory,
     # 2. 수동 저장은 Runner 수준에서 처리 (현재 main.py 방식)
     planner=BuiltInPlanner(
         thinking_config=types.ThinkingConfig(
